@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages, auth
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from contacts.models import Contact
 
 
 def login(request):
@@ -51,7 +52,11 @@ def register(request):
 
 @login_required(login_url='login')
 def dashboard(request):
-    return render(request=request, template_name='accounts/dashboard.html')
+    query_listings = Contact.objects.filter(user_id=request.user.id).all()
+    context = {
+        'query_listings': query_listings
+    }
+    return render(request=request, template_name='accounts/dashboard.html', context=context)
 
 
 def logout(request):
@@ -59,3 +64,4 @@ def logout(request):
         auth.logout(request=request)
         messages.success(request=request, message='You have successfully logged out')
         return redirect('index')
+    return redirect('login')
